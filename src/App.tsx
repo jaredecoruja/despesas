@@ -39,13 +39,14 @@ export default function App(){
 function Nav({icon,label,active,click}:{icon:React.ReactNode;label:string;active:boolean;click:()=>void}){return <button className={`nav-item ${active?"active":""}`} onClick={click}>{icon}<span>{label}</span></button>}
 
 function Dashboard({expenses,categories,onNew,onNavigate}:{expenses:Expense[];categories:Category[];onNew:()=>void;onNavigate:(p:string)=>void}){
- const months=Array.from(new Set(expenses.map(e=>monthKey(e.date)))).sort().reverse();
+ const currentMonth=monthKey(new Date().toISOString().slice(0,10));
+ const months=Array.from(new Set([currentMonth,...expenses.map(e=>monthKey(e.date))])).sort().reverse();
  const [openMonths,setOpenMonths]=useState<Record<string,boolean>>(()=>months.length?{[months[0]]:true}:{});
  const toggle=(month:string)=>setOpenMonths(prev=>({...prev,[month]:!prev[month]}));
  return <div className="page-container">
   <div className="page-heading dashboard-heading"><div><p className="eyebrow">VISÃO GERAL</p><h1>Resumo financeiro</h1></div><button className="new-expense" onClick={onNew}><Plus size={18}/> Nova despesa</button></div>
   <div className="month-sections">
-   {months.map(month=>{const items=expenses.filter(e=>monthKey(e.date)===month).sort((a,b)=>b.date.localeCompare(a.date));const total=items.reduce((s,e)=>s+e.value,0);const isOpen=!!openMonths[month];return <section className={`month-section card ${isOpen?"month-open":"month-closed"}`} key={month}>
+   {months.map(month=>{const items=expenses.filter(e=>monthKey(e.date)===month).sort((a,b)=>b.date.localeCompare(a.date));const total=items.reduce((s,e)=>s+e.value,0);const isOpen=openMonths[month]??month===months[0];return <section className={`month-section card ${isOpen?"month-open":"month-closed"}`} key={month}>
     <button className="month-header" onClick={()=>toggle(month)} aria-expanded={isOpen}><div className="month-title"><CalendarDays size={19}/><div><strong>{monthUpper(month)}</strong><span>{items.length} lançamento{items.length!==1?"s":""} · {money(total)}</span></div></div><ChevronDown className={`month-chevron ${isOpen?"rotated":""}`} size={20}/></button>
     {isOpen&&<div className="month-content"><section className="stats-grid"><Stat icon={<CircleDollarSign/>} title="DESPESAS" value={money(total)} subtitle={monthLabel(month)}/><Stat icon={<FileBarChart/>} title="LANÇAMENTOS" value={String(items.length)} subtitle="neste mês"/></section><CategorySummary categories={categories} items={items}/><button className="new-expense large-new" onClick={onNew}><Plus size={19}/> Nova despesa</button></div>}
    </section>})}
