@@ -1,5 +1,5 @@
 import { Bell, CalendarDays, Check, ChevronDown, CircleDollarSign, CreditCard, FileBarChart, Filter, Home, Menu, Pencil, Plus, Search, Settings, Trash2, TrendingUp, WalletCards, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Expense={id:string;date:string;description:string;category:string;value:number;payment:string;note:string};
 type Category={name:string;icon:string};
@@ -25,6 +25,7 @@ export default function App(){
  const [editing,setEditing]=useState<Expense|null>(null);const [showForm,setShowForm]=useState(false);const [toast,setToast]=useState("");
  const saveExpenses=(next:Expense[])=>{setExpenses(next);localStorage.setItem("despesas-expenses",JSON.stringify(next));};
  const saveCategories=(next:Category[])=>{setCategories(next);localStorage.setItem("despesas-categories",JSON.stringify(next));};
+ useEffect(()=>{expenses.forEach(e=>{syncExpenseToGoogleSheets(e)});},[]);
  const notify=(m:string)=>{setToast(m);window.setTimeout(()=>setToast(""),2200)};
  const openNew=()=>{setEditing(null);setShowForm(true)};const openEdit=(e:Expense)=>{setEditing(e);setShowForm(true)};
   const save=async(e:Expense)=>{const exists=expenses.some(x=>x.id===e.id);saveExpenses(exists?expenses.map(x=>x.id===e.id?e:x):[e,...expenses]);setShowForm(false);setEditing(null);if(!exists){const synced=await syncExpenseToGoogleSheets(e);notify(synced?"Despesa salva e enviada ao Google Sheets!":"Despesa salva localmente; não foi possível enviá-la ao Google Sheets.")}else{notify("Despesa atualizada!")}};
