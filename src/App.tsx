@@ -11,6 +11,8 @@ const initialExpenses:Expense[]=[
 ];
 const defaultCategories:Category[]=["Alimentação|🛒","Água|💧","Luz|💡","Gás|🔥","Internet|🌐","Vestuário|👕","Assinaturas|📺","Supérfluos|✨","Saúde|💊","Lazer|🎮","Compras|🛍️","Outros|📦","Cartão de crédito|💳"].map(x=>{const [name,icon]=x.split("|");return{name,icon}});
 const payments=["Cartão de crédito","Pix","Dinheiro","Débito","Transferência","Boleto"];
+const GOOGLE_SHEETS_WEB_APP_URL="https://script.google.com/macros/s/AKfycbzXZQuMDBpVMSuhav2MZqwM4IW51jZUjyw40k0ti0r1dUkOtnLNd0HByY4katFkpVDc/exec";
+const syncExpenseToGoogleSheets=async(e:Expense)=>{try{await fetch(GOOGLE_SHEETS_WEB_APP_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({operacao:"criar",id:e.id,data:e.date,descricao:e.description,categoria:e.category,valor:e.value,pagamento:e.payment,observacao:e.note})});return true}catch{return false}};
 const money=(v:number)=>v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const monthKey=(d:string)=>d.slice(0,7);
 const monthLabel=(key:string)=>new Date(`${key}-01T12:00:00`).toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
