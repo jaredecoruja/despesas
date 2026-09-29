@@ -74,7 +74,7 @@ export default function App(){
     const {error}=await supabase.from("categories").upsert(rows,{onConflict:"user_id,name"});if(error)throw error;
    }
    if(active)setAuthReady(true);
-  }catch(err:any){console.error(err);if(active){const hasFamily=Boolean(localStorage.getItem("despesas-family-id"));if(!hasFamily){localStorage.removeItem("despesas-family-entered");localStorage.removeItem("despesas-family-join-code");setFamilyEntered(false);setSyncError("");setAuthReady(false);}else{setSyncError(err?.message||"Não foi possível conectar ao Supabase.");setAuthReady(true);}}}
+  }catch(err:any){console.error(err);if(active){const hasFamily=Boolean(localStorage.getItem("despesas-family-id"));if(!hasFamily){localStorage.removeItem("despesas-family-entered");localStorage.removeItem("despesas-family-join-code");setFamilyEntered(false);setSyncError(err?.message||"Não foi possível conectar à família.");setAuthReady(false);}else{setSyncError(err?.message||"Não foi possível conectar ao Supabase.");setAuthReady(true);}}}
  })();return()=>{active=false}},[familyEntered]);
 
  useEffect(()=>{if(!familyId||!authReady)return;
@@ -103,7 +103,7 @@ export default function App(){
  const remove=(id:string)=>{if(confirm("Excluir esta despesa?")){void (async()=>{try{if(familyId){const {error}=await supabase.from("expenses").delete().eq("id",id).eq("family_id",familyId);if(error)throw error;}saveExpenses(expenses.filter(e=>e.id!==id),[]);notify("Despesa excluída.");}catch(err){console.error(err);setSyncError("Não foi possível excluir a despesa.");}})()}};
  const setPaid=(id:string,paid:boolean)=>{saveExpenses(expenses.map(e=>e.id===id?{...e,paid}:e),expenses.filter(e=>e.id===id).map(e=>({...e,paid})));notify(paid?"Despesa marcada como paga.":"Despesa voltou para pendentes.")};
  const setManyPaid=(ids:string[],paid:boolean)=>{const set=new Set(ids);saveExpenses(expenses.map(e=>set.has(e.id)?{...e,paid}:e),expenses.filter(e=>set.has(e.id)).map(e=>({...e,paid})));notify(paid?"Pagamento confirmado!":"Pagamento desfeito.")};
- if(!familyEntered) return <WelcomeScreen onEnter={(joinCode)=>{localStorage.setItem("despesas-family-entered","true");if(joinCode)localStorage.setItem("despesas-family-join-code",joinCode);setFamilyEntered(true)}}/>;
+ if(!familyEntered) return <WelcomeScreen error={syncError} onEnter={(joinCode)=>{setSyncError("");localStorage.setItem("despesas-family-entered","true");if(joinCode)localStorage.setItem("despesas-family-join-code",joinCode);setFamilyEntered(true)}}/>;
  if(!authReady) return <SyncLoading/>;
  return <div className="app-shell">
   <aside className="sidebar"><div className="brand"><div className="brand-mark"><WalletCards size={22}/></div><div><strong>DESPESAS</strong><span>Controle financeiro</span></div></div><nav><Nav icon={<Home size={19}/>} label="Início" active={page=="home"} click={()=>setPage("home")}/><Nav icon={<CircleDollarSign size={19}/>} label="Gastos" active={page=="expenses"} click={()=>setPage("expenses")}/><button className="new-expense side-new" onClick={openNew}><Plus size={18}/> Nova despesa</button><Nav icon={<FileBarChart size={19}/>} label="Relatórios" active={page=="reports"} click={()=>setPage("reports")}/><Nav icon={<Menu size={19}/>} label="Categorias" active={page=="categories"} click={()=>setPage("categories")}/></nav><div className="sidebar-bottom"><Nav icon={<Settings size={19}/>} label="Configurações" active={page=="settings"} click={()=>setPage("settings")}/></div></aside>
@@ -116,7 +116,7 @@ export default function App(){
  </div>
 }
 
-function WelcomeScreen({onEnter}:{onEnter:(joinCode?:string)=>void}){
+function WelcomeScreen({onEnter,error}:{onEnter:(joinCode?:string)=>void;error?:string}){
  const [joining,setJoining]=useState(false);
  const [code,setCode]=useState("");
  const submitJoin=(event:React.FormEvent)=>{event.preventDefault();const clean=code.replace(/[^A-Z0-9]/gi,"").toUpperCase();if(clean.length!==8)return;onEnter(clean)};
@@ -128,7 +128,7 @@ function WelcomeScreen({onEnter}:{onEnter:(joinCode?:string)=>void}){
    <p style={{margin:"0 0 28px",fontSize:17,lineHeight:1.5,color:"#6b7280"}}>{joining?"Conectar este aparelho à família":"Acessar controle financeiro"}</p>
    {!joining?<><button type="button" onClick={()=>onEnter()} style={{width:"100%",minHeight:58,border:0,borderRadius:16,background:"#7c3aed",color:"#fff",fontSize:18,fontWeight:800,cursor:"pointer",boxShadow:"0 10px 24px rgba(124,58,237,.22)"}}>ENTRAR</button>
    <button type="button" onClick={()=>setJoining(true)} style={{width:"100%",minHeight:50,marginTop:12,border:"1px solid #d8b4fe",borderRadius:14,background:"#fff",color:"#6d28d9",fontSize:15,fontWeight:800,cursor:"pointer"}}>📱 CONECTAR OUTRO APARELHO</button>
-   <p style={{margin:"18px 0 0",fontSize:12,lineHeight:1.5,color:"#9ca3af"}}>Sem usuário, senha ou cadastro.</p></>
+   <p style={{margin:"18px 0 0",fontSize:12,lineHeight:1.5,color:"#9ca3af"}}>Sem usuário, senha ou cadastro.</p>{error&&<div style={{marginTop:16,padding:12,borderRadius:12,background:"#fff1f2",border:"1px solid #fecdd3",color:"#9f1239",fontSize:13,textAlign:"left"}}>⚠️ {error}</div>}</>
    :<form onSubmit={submitJoin}>
      <label style={{display:"block",textAlign:"left",fontSize:14,fontWeight:800,color:"#374151"}}>Código da família
        <input autoFocus value={code} onChange={e=>setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,8))} placeholder="XXXXXXXX" maxLength={8} style={{width:"100%",boxSizing:"border-box",marginTop:8,padding:"14px 16px",border:"1px solid #d1d5db",borderRadius:14,fontSize:24,letterSpacing:".16em",textAlign:"center",fontWeight:800}}/>
