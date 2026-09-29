@@ -1,0 +1,141 @@
+/* Ajustes exclusivos para telas pequenas. Não altera a lógica do Resumo financeiro. */
+@media (max-width: 767px) {
+  .page-container {
+    padding: 20px 14px 88px;
+    width: 100%;
+  }
+
+  .dashboard-heading {
+    margin-bottom: 16px;
+  }
+
+  .dashboard-heading h1 {
+    font-size: 24px;
+  }
+
+  /* Botões de ano: compactos e organizados sem quebrar a tela. */
+  .dashboard-heading + div {
+    display: flex !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding-bottom: 3px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .dashboard-heading + div::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dashboard-heading + div > button {
+    flex: 0 0 auto;
+    min-width: 76px;
+    padding: 9px 14px !important;
+    font-size: 14px !important;
+  }
+
+  .month-sections {
+    width: 100%;
+  }
+
+  .month-section {
+    width: 100%;
+    margin-bottom: 10px;
+    overflow: hidden;
+    border-radius: 14px;
+  }
+
+  .month-header {
+    width: 100%;
+    min-height: 66px;
+    padding: 13px 14px;
+    gap: 10px;
+  }
+
+  .month-title {
+    min-width: 0;
+    flex: 1;
+    gap: 9px;
+  }
+
+  .month-title > svg {
+    flex: 0 0 auto;
+  }
+
+  .month-title > div {
+    min-width: 0;
+  }
+
+  .month-title strong {
+    display: block;
+    font-size: 13px;
+    line-height: 1.25;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .month-title span {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    line-height: 1.3;
+    white-space: normal;
+  }
+
+  .month-content {
+    padding: 12px;
+  }
+
+  .month-content .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .month-content .stat-card {
+    min-height: 126px;
+    padding: 14px;
+  }
+
+  .month-content .stat-card strong {
+    font-size: 18px;
+  }
+
+  .month-content .stat-card .card-label {
+    font-size: 8px;
+  }
+
+  .category-summary {
+    margin-top: 18px;
+  }
+
+  .category-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .category-summary-card {
+    padding: 10px;
+    min-height: 58px;
+  }
+
+  .category-summary-icon {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+    font-size: 15px;
+  }
+
+  .category-summary-info strong {
+    font-size: 10px;
+  }
+
+  .category-summary-info span {
+    font-size: 11px;
+  }
+
+  .month-content .card[style*="margin-top: 18px"] {
+    padding: 14px !important;
+  }
+}
