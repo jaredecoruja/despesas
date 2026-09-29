@@ -40,17 +40,23 @@ export default function App(){
 function Nav({icon,label,active,click}:{icon:React.ReactNode;label:string;active:boolean;click:()=>void}){return <button className={`nav-item ${active?"active":""}`} onClick={click}>{icon}<span>{label}</span></button>}
 
 function Dashboard({expenses,categories,onNew,onNavigate}:{expenses:Expense[];categories:Category[];onNew:()=>void;onNavigate:(p:string)=>void}){
- const months=Array.from(new Set(expenses.map(e=>monthKey(e.date)))).sort().reverse();
- const [openMonths,setOpenMonths]=useState<Record<string,boolean>>(()=>months.length?{[months[0]]:true}:{});
- const toggle=(month:string)=>setOpenMonths(prev=>({...prev,[month]:!prev[month]}));
+ const currentMonth=monthKey(new Date().toISOString().slice(0,10));
+ const years=Array.from(new Set(expenses.map(e=>e.date.slice(0,4)))).sort().reverse();
+ const availableYears=years.length?years:[currentMonth.slice(0,4)];
+ const [selectedYear,setSelectedYear]=useState(availableYears.includes(currentMonth.slice(0,4))?currentMonth.slice(0,4):availableYears[0]);
+ const months=Array.from(new Set(expenses.filter(e=>e.date.slice(0,4)===selectedYear).map(e=>monthKey(e.date)))).sort().reverse();
+ const [openMonth,setOpenMonth]=useState<string|null>(months.includes(currentMonth)?currentMonth:(months[0]||null));
+ const toggle=(month:string)=>setOpenMonth(prev=>prev===month?null:month);
+ const selectYear=(year:string)=>{setSelectedYear(year);const yearMonths=Array.from(new Set(expenses.filter(e=>e.date.slice(0,4)===year).map(e=>monthKey(e.date)))).sort().reverse();setOpenMonth(yearMonths.includes(currentMonth)?currentMonth:(yearMonths[0]||null));};
  return <div className="page-container">
   <div className="page-heading dashboard-heading"><div><p className="eyebrow">VISÃO GERAL</p><h1>Resumo financeiro</h1></div><button className="new-expense" onClick={onNew}><Plus size={18}/> Nova despesa</button></div>
+  <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:18}}>{availableYears.map(year=><button key={year} type="button" onClick={()=>selectYear(year)} style={{border:"1px solid",borderColor:selectedYear===year?"#7c3aed":"#d9dee8",background:selectedYear===year?"#7c3aed":"white",color:selectedYear===year?"white":"#374151",borderRadius:12,padding:"10px 18px",fontSize:16,fontWeight:700,cursor:"pointer",boxShadow:selectedYear===year?"0 4px 12px rgba(124,58,237,.2)":"none"}}>{year}</button>)}</div>
   <div className="month-sections">
-   {months.map(month=>{const items=expenses.filter(e=>monthKey(e.date)===month).sort((a,b)=>b.date.localeCompare(a.date));const normalItems=items.filter(e=>!isCard(e));const total=normalItems.reduce((s,e)=>s+e.value,0);const cardTotal=items.filter(isCard).reduce((s,e)=>s+e.value,0);const isOpen=!!openMonths[month];return <section className={`month-section card ${isOpen?"month-open":"month-closed"}`} key={month}>
-    <button className="month-header" onClick={()=>toggle(month)} aria-expanded={isOpen}><div className="month-title"><CalendarDays size={19}/><div><strong>{monthUpper(month)}</strong><span>{normalItems.length} despesa{normalItems.length!==1?"s":""} · {money(total)}</span></div></div><ChevronDown className={`month-chevron ${isOpen?"rotated":""}`} size={20}/></button>
+   {months.map(month=>{const items=expenses.filter(e=>monthKey(e.date)===month).sort((a,b)=>b.date.localeCompare(a.date));const normalItems=items.filter(e=>!isCard(e));const total=normalItems.reduce((s,e)=>s+e.value,0);const cardTotal=items.filter(isCard).reduce((s,e)=>s+e.value,0);const isOpen=openMonth===month;const isCurrent=month===currentMonth;return <section className={`month-section card ${isOpen?"month-open":"month-closed"}`} key={month} style={isCurrent?{borderColor:"#d8b4fe",background:"#faf5ff",boxShadow:"0 6px 20px rgba(124,58,237,.10)"}:undefined}>
+    <button className="month-header" onClick={()=>toggle(month)} aria-expanded={isOpen} style={isCurrent?{background:"#faf5ff"}:undefined}><div className="month-title"><CalendarDays size={19} color={isCurrent?"#7c3aed":undefined}/><div><strong style={isCurrent?{color:"#6d28d9"}:undefined}>{monthUpper(month)}{isCurrent?" · MÊS ATUAL":""}</strong><span>{normalItems.length} despesa{normalItems.length!==1?"s":""} · {money(total)}</span></div></div><ChevronDown className={`month-chevron ${isOpen?"rotated":""}`} size={20} color={isCurrent?"#7c3aed":undefined}/></button>
     {isOpen&&<div className="month-content"><section className="stats-grid"><Stat icon={<CircleDollarSign/>} title="DESPESAS" value={money(total)} subtitle={monthLabel(month)}/><Stat icon={<FileBarChart/>} title="LANÇAMENTOS" value={String(normalItems.length)} subtitle="despesas neste mês"/></section><CategorySummary categories={categories} items={normalItems}/><CreditCardSummary allExpenses={expenses} currentMonth={month} currentTotal={cardTotal}/><button className="new-expense large-new" onClick={onNew}><Plus size={19}/> Nova despesa</button></div>}
    </section>})}
-   {!months.length&&<div className="card empty"><CircleDollarSign size={28}/><p>Nenhuma despesa cadastrada.</p><button className="new-expense" onClick={onNew}><Plus size={18}/> Nova despesa</button></div>}
+   {!months.length&&<div className="card empty"><CircleDollarSign size={28}/><p>Nenhuma despesa cadastrada para {selectedYear}.</p><button className="new-expense" onClick={onNew}><Plus size={18}/> Nova despesa</button></div>}
   </div>
  </div>
 }
