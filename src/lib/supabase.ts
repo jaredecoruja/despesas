@@ -9,7 +9,7 @@ if (!supabaseUrl || !supabasePublishableKey) {
 
 export const supabase = createClient(
   supabaseUrl || "https://zqltesejplhvdiupkmhv.supabase.co",
-  supabasePublishableKey || "",
+  supabasePublishableKey || "sb_publishable_oUP_J_xKkL9lF8U0G3cz_Q_Mt-zTGtx",
   {
     auth: {
       persistSession: true,
