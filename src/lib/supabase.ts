@@ -16,5 +16,12 @@ export const supabase = createClient(
       autoRefreshToken: true,
       detectSessionInUrl: false,
     },
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+      heartbeatIntervalMs: 15000,
+      reconnectAfterMs: (tries: number) => Math.min(tries * 1000, 10000),
+    },
   },
 );
