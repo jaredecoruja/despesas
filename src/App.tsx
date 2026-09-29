@@ -42,11 +42,23 @@ export default function App(){
    let resolvedFamilyId=storedFamilyId;
    let resolvedPairingCode=localStorage.getItem("despesas-family-pairing-code")||"";
    if(!resolvedFamilyId){
-    const {data,error}=await supabase.functions.invoke("family-access",{body:{action:storedJoinCode?"join":"create",pairingCode:storedJoinCode||undefined}});
-    if(error)throw error;
-    if(!data?.family?.id)throw new Error(data?.error||"Não foi possível identificar a Família Medeiros.");
-    resolvedFamilyId=data.family.id;
-    resolvedPairingCode=data.family.pairing_code||resolvedPairingCode;
+     const userId=session.user.id;
+     const {data:member,error:memberError}=await supabase.from("family_members").select("family_id").eq("user_id",userId).maybeSingle();
+     if(memberError)throw new Error(memberError.message);
+     let family:{id:string;pairing_code?:string}|null=null;
+     if(member?.family_id){
+      const r=await supabase.from("families").select("id,name,pairing_code").eq("id",member.family_id).maybeSingle();
+      if(r.error)throw new Error(r.error.message);family=r.data;
+     }else{
+      let q=supabase.from("families").select("id,name,pairing_code");
+      q=storedJoinCode?q.eq("pairing_code",storedJoinCode):q.eq("name","Família Medeiros");
+      const r=await q.limit(1).maybeSingle();
+      if(r.error)throw new Error(r.error.message);family=r.data;
+      if(family){const j=await supabase.from("family_members").insert({family_id:family.id,user_id:userId});if(j.error&&j.error.code!=="23505")throw new Error(j.error.message);}
+     }
+     if(!family?.id)throw new Error("Não foi possível identificar a Família Medeiros.");
+     resolvedFamilyId=family.id;
+     resolvedPairingCode=family.pairing_code||resolvedPairingCode;
     localStorage.setItem("despesas-family-id",resolvedFamilyId);
     localStorage.setItem("despesas-family-pairing-code",resolvedPairingCode);
     localStorage.removeItem("despesas-family-join-code");
