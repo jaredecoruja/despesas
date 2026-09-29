@@ -38,7 +38,9 @@
 
 /* Despesas pagas e pendentes */
 .credit-block-title {
-  font-size: 13px !important;
+  font-size: 17px !important;
+  line-height: 1.3;
+  font-weight: 700 !important;
 }
 
 /* Mantém o conteúdo interno do cartão de crédito no tamanho atual */
@@ -90,6 +92,10 @@
 
   .category-summary-card:not(.credit-category-card) {
     min-height: 68px;
+  }
+
+  .credit-block-title {
+    font-size: 18px !important;
   }
 
   .modal label {
