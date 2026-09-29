@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import appCss from "../styles.css?url";
+import mobileCss from "../mobile-layout.css?url";
 
 function NotFoundComponent() {
   return <div className="empty" style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}><div><h1>404</h1><p>Página não encontrada.</p><Link to="/" className="link-btn">Voltar ao início</Link></div></div>;
@@ -22,7 +23,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Controle financeiro pessoal simples e intuitivo." },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [{ rel: "stylesheet", href: appCss }, { rel: "stylesheet", href: mobileCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
