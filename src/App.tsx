@@ -86,7 +86,7 @@ export default function App(){
     setExpenses(prev=>{const exists=prev.some(e=>e.id===incoming.id);const next=exists?prev.map(e=>e.id===incoming.id?incoming:e):[incoming,...prev];localStorage.setItem("despesas-expenses",JSON.stringify(next));return next;});
    })
    .on("postgres_changes",{event:"*",schema:"public",table:"categories",filter:`family_id=eq.${familyId}`},(payload:any)=>{
-    if(payload.eventType==="DELETE"){setCategories(prev=>{const next=prev.filter(c=>c.name!==payload.old?.name);localStorage.setItem("despesas-categories",JSON.stringify(next));return next;});return;}
+    if(payload.eventType==="DELETE"){void (async()=>{const {data}=await supabase.from("categories").select("name,icon").eq("family_id",familyId).order("created_at",{ascending:true});if(data){const next=data.map((x:any)=>({name:x.name,icon:x.icon||"🏷️"}));setCategories(next);localStorage.setItem("despesas-categories",JSON.stringify(next));}})();return;}
     const row=payload.new;if(!row?.name)return;
     const incoming={name:row.name,icon:row.icon||"🏷️"};
     setCategories(prev=>{const exists=prev.some(c=>c.name===incoming.name);const next=exists?prev.map(c=>c.name===incoming.name?incoming:c):[...prev,incoming];localStorage.setItem("despesas-categories",JSON.stringify(next));return next;});
