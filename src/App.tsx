@@ -74,7 +74,7 @@ export default function App(){
     const {error}=await supabase.from("categories").upsert(rows,{onConflict:"user_id,name"});if(error)throw error;
    }
    if(active)setAuthReady(true);
-  }catch(err:any){console.error(err);if(active){setSyncError(err?.message||"Não foi possível conectar ao Supabase.");setAuthReady(true);}}
+  }catch(err:any){console.error(err);if(active){const hasFamily=Boolean(localStorage.getItem("despesas-family-id"));if(!hasFamily){localStorage.removeItem("despesas-family-entered");localStorage.removeItem("despesas-family-join-code");setFamilyEntered(false);setSyncError("");setAuthReady(false);}else{setSyncError(err?.message||"Não foi possível conectar ao Supabase.");setAuthReady(true);}}}
  })();return()=>{active=false}},[familyEntered]);
 
  useEffect(()=>{if(!familyId||!authReady)return;
