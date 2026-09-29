@@ -141,7 +141,9 @@ function WelcomeScreen({onEnter}:{onEnter:(joinCode?:string)=>void}){
  </div>
 }
 
-function SyncLoading(){return <div style={{minHeight:"100vh",display:"grid",placeItems:"center",padding:24,background:"#faf5ff"}}><div style={{textAlign:"center"}}><div style={{fontSize:42,marginBottom:14}}>☁️</div><h2 style={{marginBottom:6}}>Preparando seu controle</h2><p style={{color:"#6b7280"}}>Conectando seus dados com segurança…</p></div></div>}\n\nfunction Nav({icon,label,active,click}:{icon:React.ReactNode;label:string;active:boolean;click:()=>void}){return <button className={`nav-item ${active?"active":""}`} onClick={click}>{icon}<span>{label}</span></button>}
+function SyncLoading(){return <div style={{minHeight:"100vh",display:"grid",placeItems:"center",padding:24,background:"#faf5ff"}}><div style={{textAlign:"center"}}><div style={{fontSize:42,marginBottom:14}}>☁️</div><h2 style={{marginBottom:6}}>Preparando seu controle</h2><p style={{color:"#6b7280"}}>Conectando seus dados com segurança…</p></div></div>}
+
+function Nav({icon,label,active,click}:{icon:React.ReactNode;label:string;active:boolean;click:()=>void}){return <button className={`nav-item ${active?"active":""}`} onClick={click}>{icon}<span>{label}</span></button>}
 
 function Dashboard({expenses,categories,onNew,setPaid,setManyPaid}:{expenses:Expense[];categories:Category[];onNew:()=>void;setPaid:(id:string,paid:boolean)=>void;setManyPaid:(ids:string[],paid:boolean)=>void}){
  const currentMonth=monthKey(new Date().toISOString().slice(0,10));const years=Array.from(new Set(expenses.map(e=>e.date.slice(0,4)))).sort().reverse();const availableYears=years.length?years:[currentMonth.slice(0,4)];
